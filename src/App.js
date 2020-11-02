@@ -1,25 +1,83 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const keyArr = ['AC','/','x','+','-','.','='];
+for (let i = 0; i < 10; i++) {
+    keyArr.push(i.toString());
+}
+console.log("key array: ", keyArr); //debug
+
+const Display = (props) => {
+    return (
+        <div id={props.name}>{props.myText}</div>
+    );
+}
+
+class KeyPad extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    
+    render() {
+        return(
+            <input type="button" id={this.props.myValue} value={this.props.myValue} className="keypad" onClick={this.props.action}/>
+        );
+    };
+}
+
+const KeyPadArea = (props) => {
+    const keyPads = props.action.map(x=> <KeyPad myValue={x.name} action={x.action}/>);
+    return (
+        <div id="keypads">{keyPads}</div>
+    );
+}
+
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state={
+            result: "0",
+            lastNum: 0
+        };
+        this.clearAll = this.clearAll.bind(this);
+        this.handleClick = this.handleClick.bind(this);
+    }
+    
+    clearAll() {
+        console.log("clearAll");
+        this.setState({
+            result: "0",
+            lastNum: 0
+        });
+    }
+    
+    handleClick(e) {
+        this.setState({
+            result: this.state.result + e.target.value,
+            lastNum: e.target.value
+        });
+    }
+    
+    render() {
+        let keyData = [];
+        for (let i = 0; i < keyArr.length; i++) {
+            let temp = {};
+            temp.name = keyArr[i];
+            temp.action = keyArr[i] === "AC" ? this.clearAll : this.handleClick;
+            console.log(i, keyArr[i], temp, keyData);
+            keyData.push(temp);
+        }
+        console.log("keyData in App: ", keyData);
+        return (
+          <div className="App">
+              <div id="container">
+                  <Display name="result-display" myText={this.state.result} /> 
+                  <Display name="display" myText={this.state.lastNum} />
+                  <KeyPadArea action={keyData}/>
+              </div>    
+          </div>
+        );
+    }
 }
 
 export default App;
