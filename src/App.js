@@ -1,11 +1,14 @@
 import React from 'react';
+import {create, all} from 'mathjs';
 import './App.css';
+
+const config={};
+const math = create(all, config);
 
 const keyArr = ['AC','/','x','+','-','.','='];
 for (let i = 0; i < 10; i++) {
     keyArr.push(i.toString());
 }
-console.log("key array: ", keyArr); //debug
 
 const Display = (props) => {
     return (
@@ -41,6 +44,7 @@ class App extends React.Component {
         };
         this.clearAll = this.clearAll.bind(this);
         this.handleClick = this.handleClick.bind(this);
+        this.handleCompute = this.handleCompute.bind(this);
     }
     
     clearAll() {
@@ -52,9 +56,23 @@ class App extends React.Component {
     }
     
     handleClick(e) {
+        if (this.state.result === "0") {
+            this.state.result = ""
+        }
+        if (e.target.value==="x") {
+            e.target.value="*";
+        }
         this.setState({
             result: this.state.result + e.target.value,
             lastNum: e.target.value
+        });
+    }
+    
+    handleCompute() {
+        const newResult = math.evaluate(this.state.result);
+        this.setState({
+            result: newResult,
+            lastNum: newResult
         });
     }
     
@@ -63,7 +81,17 @@ class App extends React.Component {
         for (let i = 0; i < keyArr.length; i++) {
             let temp = {};
             temp.name = keyArr[i];
-            temp.action = keyArr[i] === "AC" ? this.clearAll : this.handleClick;
+            switch(keyArr[i]) {
+                case "AC":
+                    temp.action = this.clearAll;
+                    break;
+                case "=":
+                    temp.action = this.handleCompute;
+                    break;
+                default:
+                    temp.action = this.handleClick;
+                    break;
+            }
             console.log(i, keyArr[i], temp, keyData);
             keyData.push(temp);
         }
